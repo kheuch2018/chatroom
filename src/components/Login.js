@@ -7,10 +7,11 @@ class Login extends Component {
     state = {
         userName: '',
         isCorrect: false,
-        goToChat: false
+        goToChat: false,
+        onlineUsers: {}
     }
 
-
+   
 
     handleChange = (event) => {
         const userName = event.target.value

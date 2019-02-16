@@ -1,37 +1,47 @@
-import React, { Component, Fragment ,createRef} from 'react';
+import React, { Component, Fragment, createRef } from 'react';
 
 import './App.css';
 import { Redirect } from 'react-router-dom'
 import Formulaire from './components/Formulaire';
 import Message from './components/Message';
-
+import './animations.css'
 
 //firebase connexion
 import base from './base'
 
+//Animations
+import {
+  CSSTransition,
+  TransitionGroup
+} from 'react-transition-group'
 
 class App extends Component {
 
   state = {
     message: '',
     pseudo: this.props.match.params.pseudo,
-    messages: {}
+    messages: {},
+    onlineUsers: {}
   }
 
-  
 
-  componentDidMount(){
-    base.syncState('/',{
+
+  componentDidMount() {
+    base.syncState('/', {
       context: this,
       state: 'messages'
     })
   }
 
-  messagesRef = createRef() 
+  messagesRef = createRef()
+
+  componentWillUnmount(){
+    console.log('app quitté')
+  }  
 
 
   componentDidUpdate = () => {
-    const ref= this.messagesRef.current
+    const ref = this.messagesRef.current
     ref.scrollTop = ref.scrollHeight
   }
 
@@ -52,14 +62,14 @@ class App extends Component {
       pseudo: this.state.pseudo
     }
 
-   
+
     Object.keys(this.state.messages)
-      .slice(0, -10)
+      .slice(0, -2)
       .forEach(key => {
         messages[key] = null
       })
 
-      this.setState({ messages })
+    this.setState({ messages })
   }
 
   handleSubmit = event => {
@@ -76,10 +86,14 @@ class App extends Component {
 
     const listeMessages = Object.keys(this.state.messages)
       .map(mess => (
-        <Message
-          key={mess}
-          message={this.state.messages[mess].message}
-          pseudo={(this.state.messages[mess].pseudo === this.state.pseudo) ? 'me' : this.state.messages[mess].pseudo} />
+        <CSSTransition
+          timeout={200}
+          classNames='fade'
+          key={mess}>
+          <Message  
+            message={this.state.messages[mess].message}
+            pseudo={(this.state.messages[mess].pseudo === this.state.pseudo) ? 'me' : this.state.messages[mess].pseudo} />
+        </CSSTransition>
       ))
 
     const pseudo = this.state.pseudo
@@ -92,10 +106,12 @@ class App extends Component {
         <div className="container">
           <div className="row">
             <div className='myInterface col-sm-8 offset-sm-2 col-md-4 offset-md-4' ref={this.messagesRef} style={{ height: '300px', width: '100%', background: '#F2F1F2', marginTop: '100px' }}>
-            <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+              <br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+              <TransitionGroup>
+                {listeMessages}
+              </TransitionGroup>
 
 
-              {listeMessages}
             </div>
           </div>
           <Formulaire
